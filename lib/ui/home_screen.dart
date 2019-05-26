@@ -10,7 +10,7 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController _heightController = new TextEditingController();
   TextEditingController _weightController = new TextEditingController();
   double _result = 0.0;
-  String _message;
+  String _message = "";
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           labelText: "Height in feet",
                           icon: Icon(Icons.assessment),
                         ),
-                        keyboardType: TextInputType.number,
+                        keyboardType: TextInputType.numberWithOptions(),
                       ),
                     ),
                     Padding(
@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "Your BMI: ${_result.toStringAsFixed(2)}",
+                  _result > 0 ? "Your BMI: ${_result.toStringAsFixed(2)}" : "",
                   style: TextStyle(
                       color: Colors.blue,
                       fontSize: 24.8,
@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "$_message",
+                  _message == null ? "" : "$_message",
                   style: TextStyle(
                     color: Colors.red.shade400,
                     fontSize: 24.8,
@@ -120,24 +120,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   calculateBMI() {
     setState(() {
-      int age = int.parse(_ageController.text);
+      int age = 0;
       double inches = 0.0;
-      double height = double.parse(_heightController.text);
-      inches = height * 12;
-      double weight = double.parse(_weightController.text);
+      double weight = 0.0;
+      if (_ageController.text.isNotEmpty && _heightController.text.isNotEmpty){
+        age = int.parse(_ageController.text);
+        double height = double.parse(_heightController.text);
+        inches = height * 12;
+        weight = double.parse(_weightController.text);
+      }
+
+
+
+
 
       if ((_ageController.text.isNotEmpty || age > 0) &&
           (_heightController.text.isNotEmpty || inches > 0) &&
           (_weightController.text.isNotEmpty || weight > 0)) {
         _result = weight / (inches * inches) * 703;
 
-        if (_result > 23) {
-          _message = "Overweight";
-        } else {
+        if (_result < 18.5) {
+          _message = "Underweight";
+        } else if (_result >= 18.5 && _result < 25) {
           _message = "Normal";
+        } else if (_result >= 25 && _result < 30) {
+          _message = "Overweight";
+        } else if (_result >= 30) {
+          _message = "Obese";
         }
-      } else{
+      } else {
         _result = 0.0;
+        _message = "";
         return 0.0;
       }
     });
